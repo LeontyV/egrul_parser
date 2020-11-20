@@ -1,0 +1,1 @@
+D:\Python\venvs\uc_project\Scripts\pyinstaller.exe "D:\python\uc_project\egrul_parser.py" --onefile --noconsole
