@@ -117,15 +117,15 @@ def egrul_parser(ogrn):
             final_content = r.get(dwnld_url)
 
         now_date = dt.now().strftime('%d-%m-%Y')
-        path = ''
-        if folder_lbl['text'] and folder_lbl['text'] != 'Укажите папку':
+
+        path = create_folders()
+        if folder_lbl['text'] != 'Укажите папку!' and folder_lbl['text']:
             path = folder_lbl['text']
-            path = path + '/' + now_date
-        else:
-            path = now_date
+        path = path + '\\' + now_date
         if not os.path.exists(path):
             os.mkdir(path)
-        file_name = f'{path}/{str(ogrn)}.pdf'
+
+        file_name = f'{path}\{str(ogrn)}.pdf'
         open(file_name, 'wb').write(final_content.content)
 
         logger(f'Файл "{str(ogrn)}.pdf" сохранен в папке {path}')
@@ -460,7 +460,7 @@ def err_message():
 
 def open_folder():
     egrul_parser_path = create_folders()
-    folder_settings_path = egrul_parser_path + '/folder_settings'
+    folder_settings_path = egrul_parser_path + '\\folder_settings'
     set_dict = {}
     folder = fd.askdirectory(title='Выберите папку для сохранения файлов')
     folder_lbl['text'] = folder
@@ -510,7 +510,7 @@ def handle_click_copy(event):
 
 def create_folders():
     home_path = os.getenv('USERPROFILE')
-    egrul_parser_path = home_path + '/egrul_parser'
+    egrul_parser_path = home_path + '\egrul_parser'
     if not os.path.exists(egrul_parser_path):
         os.mkdir(egrul_parser_path)
 
@@ -519,7 +519,7 @@ def create_folders():
 
 def fill_folder_path():
     egrul_parser_path = create_folders()
-    folder_settings_path = egrul_parser_path + '/folder_settings'
+    folder_settings_path = egrul_parser_path + '\\folder_settings'
     if os.path.exists(folder_settings_path):
         file = open(folder_settings_path, 'rb')
         folder_enc = file.read()
