@@ -187,49 +187,60 @@ def get_values(vyp, org_info):
     except IndexError:
         values['свидетельство'] = 'нет'
 
+    res = json.loads(org_info)
+
     # вытаскиваем дату регистрации
-    date_reg = re.findall('r":"([0-9А-Яа-я\W]+)",', org_info)[0]
+    date_reg = res['rows'][0]['r']
 
     if values['свидетельство'] == 'нет':
         values['свидетельство'] = vyp_new[vyp_new.index(date_reg) - 1] + ' от ' + date_reg
 
     # вытаскиваем адрес
     try:
-        adress = re.findall('a":"([0-9А-Яа-я\W]+)",', org_info)[0]
-    except IndexError:
+        adress = res['rows'][0]['a']
+    except [IndexError, KeyError]:
         adress = 'Не нашел'
 
     # вытаскиваем название
     try:
-        name_long = re.findall('"n":"(.+)","o"', org_info)[0]
-    except IndexError:
+        name_long = res['rows'][0]['n']
+    except [IndexError, KeyError]:
         name_long = 'Не нашел'
+
     try:
-        name_short = re.findall('"c":"(.+)","g"', org_info)[0]
-    except IndexError:
+        name_short = res['rows'][0]['c']
+    except [IndexError, KeyError]:
         name_short = name_long
 
     # вытаскиваем реквизиты
     try:
-        ogrn = re.findall('"o":"(\d+)"', org_info)[0]
-    except IndexError:
+        ogrn = res['rows'][0]['o']
+    except [IndexError, KeyError]:
         ogrn = 'не нашел'
+
     try:
-        inn = re.findall('"i":"(\d+)"', org_info)[0]
-    except IndexError:
+        inn = res['rows'][0]['i']
+    except [IndexError, KeyError]:
         inn = 'не нашел'
 
     # вытаскиваем должность и ФИО
     try:
-        fio = re.findall('"g":"[А-Я ()"\W]+:([а-яА-ЯёЁйЙ ]+)', org_info)[0]
-        fio = fio.lower().title()
-    except IndexError:
+        fio = res['rows'][0]['g']
+        fio = fio[fio.find(':')+1:]
+        fio = fio.lower().title().strip()
+    except [IndexError, KeyError]:
         fio = 'не нашел'
+
     try:
-        position = re.findall('"g":"([А-Я() "\W]+):', org_info)[0]
-        position = position[0].upper() + position[1:].lower()
-    except IndexError:
+        position = res['rows'][0]['g']
+        position = position[:position.find(':')]
+        position = position[0].upper() + position[1:].lower().strip()
+    except [IndexError, KeyError]:
         position = 'не нашел'
+
+    if '"' in position:
+        index = position.find('"')
+        position = position[:index+1] + position[index+1].upper() + position[index+2:]
 
     values['адрес'] = adress.replace('\\', '')
     values['краткое наименование'] = name_short.replace('\\', '')
