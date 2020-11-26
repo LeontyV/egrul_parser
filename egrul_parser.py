@@ -28,8 +28,6 @@ from check_cert import get_cert_attr
 from info_to_excel import to_file
 from proxy import get_random_ua
 
-global prx
-
 
 def egrul_parser(ogrn):
     headers = get_random_ua()
@@ -78,6 +76,7 @@ def egrul_parser(ogrn):
         org_info = r.get(url2)
 
     org_info = org_info.content.decode('utf-8')
+    logger(org_info)
 
     try:
         id = re.findall('"t":"(.+)","p', org_info)[0]
