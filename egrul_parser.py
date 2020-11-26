@@ -34,8 +34,10 @@ def egrul_parser(ogrn):
     proxies = None
     check_proxy = False
     data = {'query': ogrn}
-    if os.path.exists('proxy_settings'):
-        file = open('proxy_settings', 'rb')
+    egrul_parser_path = create_folders()
+    proxy_settings_path = egrul_parser_path + '/proxy_settings'
+    if os.path.exists(proxy_settings_path):
+        file = open(proxy_settings_path, 'rb')
         proxies_enc = file.read()
         proxies_dec = base64.b64decode(proxies_enc)
         proxies_dec = proxies_dec.decode('utf-8')
@@ -198,45 +200,63 @@ def get_values(vyp, org_info):
     # вытаскиваем адрес
     try:
         adress = res['rows'][0]['a']
-    except [IndexError, KeyError]:
+    except IndexError:
+        adress = 'Не нашел'
+    except KeyError:
         adress = 'Не нашел'
 
     # вытаскиваем название
     try:
         name_long = res['rows'][0]['n']
-    except [IndexError, KeyError]:
+    except IndexError:
+        name_long = 'Не нашел'
+    except KeyError:
         name_long = 'Не нашел'
 
     try:
         name_short = res['rows'][0]['c']
-    except [IndexError, KeyError]:
+    except IndexError:
         name_short = name_long
+    except KeyError:
+        name_short = 'Не нашел'
 
     # вытаскиваем реквизиты
     try:
         ogrn = res['rows'][0]['o']
-    except [IndexError, KeyError]:
+    except IndexError:
         ogrn = 'не нашел'
+    except KeyError:
+        ogrn = 'Не нашел'
 
     try:
         inn = res['rows'][0]['i']
-    except [IndexError, KeyError]:
+    except IndexError:
         inn = 'не нашел'
+    except KeyError:
+        inn = 'Не нашел'
 
     # вытаскиваем должность и ФИО
-    try:
-        fio = res['rows'][0]['g']
-        fio = fio[fio.find(':')+1:]
-        fio = fio.lower().title().strip()
-    except [IndexError, KeyError]:
-        fio = 'не нашел'
+    if res['rows'][0]['k'] == 'ul':
+        try:
+            fio = res['rows'][0]['g']
+            fio = fio[fio.find(':')+1:]
+            fio = fio.lower().title().strip()
+        except IndexError:
+            fio = 'не нашел'
+        except KeyError:
+            fio = 'Не нашел'
+
+    if res['rows'][0]['k'] == 'fl':
+        fio = name_long.lower().title()
 
     try:
         position = res['rows'][0]['g']
         position = position[:position.find(':')]
         position = position[0].upper() + position[1:].lower().strip()
-    except [IndexError, KeyError]:
+    except IndexError:
         position = 'не нашел'
+    except KeyError:
+        position = 'Не нашел'
 
     if '"' in position:
         index = position.find('"')
@@ -323,7 +343,9 @@ def choice_proxy():
             enc_str = str(set_dict).encode('utf-8')
             enc_str_b64 = base64.b64encode(enc_str)
 
-        proxy_settings = open('proxy_settings', 'wb')
+        egrul_parser_path = create_folders()
+        proxy_settings_path = egrul_parser_path + '/proxy_settings'
+        proxy_settings = open(proxy_settings_path, 'wb')
         proxy_settings.write(enc_str_b64)
 
         proxy_settings.close()
@@ -385,8 +407,10 @@ def choice_proxy():
     btn = Button(pw, text="Закрыть", command=on_close_proxy)
     btn.grid(column=0, row=5)
 
-    if os.path.exists('proxy_settings'):
-        file = open('proxy_settings', 'rb')
+    egrul_parser_path = create_folders()
+    proxy_settings_path = egrul_parser_path + '/proxy_settings'
+    if os.path.exists(proxy_settings_path):
+        file = open(proxy_settings_path, 'rb')
         proxies_enc = file.read()
         proxies_dec = base64.b64decode(proxies_enc)
         proxies_dec = proxies_dec.decode('utf-8')
@@ -435,6 +459,8 @@ def err_message():
 
 
 def open_folder():
+    egrul_parser_path = create_folders()
+    folder_settings_path = egrul_parser_path + '/folder_settings'
     set_dict = {}
     folder = fd.askdirectory(title='Выберите папку для сохранения файлов')
     folder_lbl['text'] = folder
@@ -443,7 +469,7 @@ def open_folder():
     enc_str = str(set_dict).encode('utf-8')
     enc_str_b64 = base64.b64encode(enc_str)
 
-    folder_settings = open('folder_settings', 'wb')
+    folder_settings = open(folder_settings_path, 'wb')
     folder_settings.write(enc_str_b64)
 
     folder_settings.close()
@@ -482,9 +508,20 @@ def handle_click_copy(event):
     window.update()
 
 
+def create_folders():
+    home_path = os.getenv('USERPROFILE')
+    egrul_parser_path = home_path + '/egrul_parser'
+    if not os.path.exists(egrul_parser_path):
+        os.mkdir(egrul_parser_path)
+
+    return egrul_parser_path
+
+
 def fill_folder_path():
-    if os.path.exists('folder_settings'):
-        file = open('folder_settings', 'rb')
+    egrul_parser_path = create_folders()
+    folder_settings_path = egrul_parser_path + '/folder_settings'
+    if os.path.exists(folder_settings_path):
+        file = open(folder_settings_path, 'rb')
         folder_enc = file.read()
         folder_dec = base64.b64decode(folder_enc)
         folder_dec = folder_dec.decode('utf-8')
