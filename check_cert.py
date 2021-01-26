@@ -12,10 +12,12 @@ def get_cert_attr(cert_path):
         cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert_obj)
 
     not_after = cert.get_notAfter().decode('ascii') # 20211029094827
-    result['конец'] = f'{not_after[6:8]}.{not_after[4:6]}.{not_after[:4]} {not_after[8:10]}:{not_after[10:12]}:{not_after[12:14]}'
+    hours_after = int(not_after[8:10]) + 3
+    result['конец'] = f'{not_after[6:8]}.{not_after[4:6]}.{not_after[:4]} {str(hours_after)}:{not_after[10:12]}:{not_after[12:14]}'
     not_before = cert.get_notBefore().decode('ascii')
-    result['начало'] = f'{not_before[6:8]}.{not_before[4:6]}.{not_before[:4]} {not_before[8:10]}:{not_before[10:12]}:{not_before[12:14]}'
-    result['Серийный номер'] = '{0:x}'.format(cert.get_serial_number())
+    hours_before = int(not_before[8:10]) + 3
+    result['начало'] = f'{not_before[6:8]}.{not_before[4:6]}.{not_before[:4]} {str(hours_before)}:{not_before[10:12]}:{not_before[12:14]}'
+    result['Серийный номер'] = '{0:x}'.format(cert.get_serial_number()).upper()
     subject_ext = cert.get_subject().get_components()
 
     sn = ''

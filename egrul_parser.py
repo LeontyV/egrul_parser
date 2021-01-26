@@ -59,10 +59,13 @@ def egrul_parser(ogrn):
     r = requests.session()
     url = "https://egrul.nalog.ru"
 
+    print(check_proxy)
     if check_proxy:
+        print('качаем выписку с прокси')
         resp = r.get(url, proxies=proxies, auth=auth, headers=headers)
         content = r.post(url, data=data, proxies=proxies, auth=auth, headers=headers)
     else:
+        print('качаем выписку без прокси')
         resp = r.get(url, headers=headers)
         content = r.post(url, data=data, headers=headers)
 
@@ -174,13 +177,13 @@ def get_values(vyp, org_info):
 
     # ищем свидетельство
     try:
-        certificate = [elem for elem in vyp_new if 'Серия, номер и дата выдачи свидетельства' in elem][0]
+        certificate = [elem for elem in vyp_new if 'Серия, номер и дача выдачи свидетельства' in elem][0]
         values['свидетельство'] = vyp_new[vyp_new.index(certificate)][-12:].strip()
         cert_date_index = vyp_new.index(certificate) + 1
         while True:
             try:
                 vyp_date = re.findall('(\d{2}.\d{2}.\d{4})', vyp_new[cert_date_index])[0]
-                values['свидетельство'] += ' ' + vyp_date
+                values['свидетельство'] += ' от ' + vyp_date
                 break
             except IndexError:
                 pass
