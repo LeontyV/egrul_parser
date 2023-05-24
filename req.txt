@@ -20,7 +20,7 @@ pyinstaller-hooks-contrib==2020.10
 pyOpenSSL==19.1.0
 pyPdf==1.13
 pywin32-ctypes==0.2.0
-requests==2.24.0
+requests==2.31.0
 selenium==3.141.0
 six==1.15.0
 sortedcontainers==2.2.2
